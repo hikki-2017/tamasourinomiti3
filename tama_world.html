@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>変態世界逃亡記 〜たまの世界制覇〜</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Shippori+Mincho+B1:wght@400;700;800&display=swap');
+
+:root{
+  --void:#05080f;
+  --deep:#090d18;
+  --mid:#0f1525;
+  --surface:#151d30;
+  --border:rgba(80,140,220,0.18);
+  --accent:#4a8cff;
+  --accent2:#a0c8ff;
+  --hot:#ff6a3d;
+  --gold:#f0c040;
+  --green:#40d080;
+  --text:#d8e8ff;
+  --muted:#4a5a7a;
+  --danger:#ff3a3a;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:var(--void);
+  font-family:'Noto Sans JP',sans-serif;
+  height:100vh;
+  overflow:hidden;
+  color:var(--text);
+}
+
+/* ── GLOBAL SCANLINE ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(
+    0deg,transparent,transparent 2px,
+    rgba(0,10,30,0.12) 2px,rgba(0,10,30,0.12) 4px
+  );
+  pointer-events:none;
+  z-index:900;
+}
+
+/* ══════════════════════
+   TITLE
+══════════════════════ */
+#title{
+  position:fixed;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 40%,#0a1535 0%,var(--void) 100%);
+  cursor:pointer;
+  overflow:hidden;
+  z-index:500;
+}
+/* Star field */
+#title canvas{position:absolute;inset:0;pointer-events:none;}
+
+.t-series{
+  font-size:.65rem;letter-spacing:.5em;color:var(--muted);
+  margin-bottom:.6rem;
+  border:1px solid var(--muted);
+  padding:.25rem .8rem;
+  border-radius:2px;
+}
+.t-globe{font-size:5rem;margin-bottom:.5rem;animation:globeSpin 6s linear infinite;}
+@keyframes globeSpin{0%{filter:hue-rotate(0deg) drop-shadow(0 0 20px #4a8cff66);}100%{filter:hue-rotate(360deg) drop-shadow(0 0 20px #4a8cff66);}}
+.t-main{
+  font-family:'Shippori Mincho B1',serif;
+  font-size:clamp(1.8rem,4.5vw,3.2rem);
+  font-weight:800;
+  color:var(--accent2);
+  text-shadow:0 0 40px rgba(74,140,255,.6),0 0 80px rgba(74,140,255,.3);
+  text-align:center;line-height:1.35;
+  margin-bottom:.4rem;
+}
+.t-sub{font-size:.8rem;color:var(--muted);letter-spacing:.35em;margin-bottom:.5rem;}
+.t-history{
+  font-size:.7rem;color:#2a3a5a;
+  padding:.4rem 1.2rem;
+  border:1px solid #1a2a40;
+  margin-bottom:2rem;letter-spacing:.08em;
+}
+.t-click{font-size:.8rem;color:var(--muted);letter-spacing:.25em;animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.6;}50%{opacity:.1;}}
+
+/* Route map decorative */
+.world-line{
+  position:absolute;
+  width:60%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(74,140,255,.3),transparent);
+  top:55%;
+  animation:scan 3s ease-in-out infinite;
+}
+@keyframes scan{0%,100%{opacity:.3;transform:scaleX(.8);}50%{opacity:1;transform:scaleX(1);}}
+
+/* ══════════════════════
+   GAME SHELL
+══════════════════════ */
+#game{
+  display:none;
+  height:100vh;
+  flex-direction:column;
+}
+
+/* ── HUD TOP ── */
+#hud{
+  display:flex;align-items:center;
+  gap:.8rem;
+  padding:.4rem 1rem;
+  background:rgba(5,8,15,.95);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  z-index:20;
+  flex-wrap:wrap;
+}
+.hud-logo{
+  font-family:'Shippori Mincho B1',serif;
+  font-size:.85rem;color:var(--muted);
+  letter-spacing:.1em;flex:none;
+}
+.hud-loc{
+  font-size:.72rem;color:var(--accent);
+  background:rgba(74,140,255,.1);
+  border:1px solid rgba(74,140,255,.25);
+  padding:.18rem .6rem;border-radius:2px;
+  letter-spacing:.05em;
+  transition:all .4s;
+}
+.hud-chapter{
+  font-size:.7rem;color:var(--gold);
+  margin-left:auto;
+  letter-spacing:.1em;
+}
+.stat-group{display:flex;gap:.6rem;align-items:center;}
+.stt{display:flex;align-items:center;gap:.3rem;font-size:.65rem;color:var(--muted);}
+.sbar{width:50px;height:5px;background:#0a0f1e;border-radius:3px;overflow:hidden;}
+.sfill{height:100%;border-radius:3px;transition:width .5s;}
+.sfill.s1{background:linear-gradient(90deg,#cc2200,#ff5500);}
+.sfill.s2{background:linear-gradient(90deg,#004488,#0088ff);}
+.sfill.s3{background:linear-gradient(90deg,#886600,#ffcc00);}
+.sfill.s4{background:linear-gradient(90deg,#006622,#00cc44);}
+#snd{
+  background:none;border:1px solid var(--border);color:var(--muted);
+  width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;flex-none;
+}
+#snd:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── SCENE ── */
+#scene{
+  flex:1;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+#bg{position:absolute;inset:0;transition:background .7s,opacity .5s;}
+#bg-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 50%,rgba(5,8,15,.8) 100%);
+  pointer-events:none;z-index:1;
+}
+
+/* Location watermark */
+#loc-stamp{
+  position:absolute;bottom:38%;right:1.5rem;
+  font-size:.6rem;letter-spacing:.3em;color:rgba(74,140,255,.3);
+  transform:rotate(90deg);transform-origin:right center;
+  pointer-events:none;z-index:3;
+  transition:all .5s;
+}
+
+/* Items */
+.sitem{
+  position:absolute;font-size:2.2rem;pointer-events:none;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,.9));
+  transition:all .5s;z-index:2;
+}
+
+/* Char */
+#char-wrap{
+  position:relative;z-index:5;text-align:center;
+}
+#char-em{
+  font-size:clamp(5rem,11vw,8.5rem);display:block;
+  transition:all .35s;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,.95));
+}
+#char-nm{
+  font-size:.65rem;color:var(--muted);
+  letter-spacing:.18em;margin-top:.3rem;
+}
+
+/* New char side panel */
+#npc-panel{
+  position:absolute;right:1rem;top:50%;transform:translateY(-50%);
+  z-index:6;
+  display:flex;flex-direction:column;gap:.5rem;
+  pointer-events:none;
+}
+.npc-card{
+  background:rgba(5,8,20,.85);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:.5rem .7rem;
+  text-align:center;
+  backdrop-filter:blur(8px);
+  opacity:0;transform:translateX(20px);
+  transition:all .4s;
+  min-width:90px;
+}
+.npc-card.show{opacity:1;transform:translateX(0);}
+.npc-em{font-size:2rem;display:block;margin-bottom:.2rem;}
+.npc-name{font-size:.6rem;color:var(--accent2);letter-spacing:.1em;}
+.npc-role{font-size:.55rem;color:var(--muted);}
+
+/* ── CHOICE OVERLAY ── */
+#choice-ov{
+  position:absolute;inset:0;
+  display:none;align-items:center;justify-content:center;
+  z-index:30;
+  background:rgba(2,4,12,.7);
+  backdrop-filter:blur(4px);
+}
+#cbox{
+  display:flex;flex-direction:column;gap:.6rem;
+  width:min(92%,560px);
+  padding:1.4rem;
+  background:rgba(8,12,24,.96);
+  border:1px solid var(--border);
+  border-radius:6px;
+  box-shadow:0 0 60px rgba(0,0,0,.9),0 0 30px rgba(74,140,255,.05);
+}
+.ch-head{
+  font-size:.65rem;color:var(--muted);
+  letter-spacing:.35em;text-align:center;margin-bottom:.2rem;
+}
+.cbtn{
+  background:rgba(15,21,37,.9);
+  border:1px solid rgba(74,140,255,.2);
+  color:#b0c8e8;
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:.88rem;padding:.8rem 1.1rem;
+  text-align:left;cursor:pointer;
+  transition:all .18s;border-radius:3px;
+  letter-spacing:.03em;position:relative;overflow:hidden;
+}
+.cbtn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(74,140,255,.12),transparent);
+  transform:translateX(-100%);transition:transform .25s;
+}
+.cbtn:hover::after{transform:translateX(0);}
+.cbtn:hover{border-color:rgba(74,140,255,.6);color:var(--accent2);transform:translateX(5px);}
+.cn{color:var(--accent);font-size:.7em;font-weight:700;margin-right:.4rem;}
+
+/* ── TEXTBOX ── */
+#tbox-wrap{
+  flex-shrink:0;
+  background:linear-gradient(to top,rgba(5,8,15,.98),rgba(5,8,15,.94) 80%,transparent 100%);
+  position:relative;z-index:10;
+}
+#tbox-wrap::before{
+  content:'';display:block;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(74,140,255,.3) 30%,rgba(74,140,255,.3) 70%,transparent);
+}
+#tpanel{
+  padding:.9rem 1.4rem 1.1rem;
+  cursor:pointer;min-height:120px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+}
+#spk-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;}
+#spk-ico{font-size:1.1rem;}
+#spk-nm{
+  font-size:.75rem;font-weight:700;
+  color:var(--accent2);letter-spacing:.08em;
+  padding:.15rem .6rem;
+  background:rgba(74,140,255,.12);
+  border-left:2px solid var(--accent);
+}
+#dial{
+  font-size:clamp(.85rem,1.8vw,.98rem);
+  color:#c8daf8;line-height:2;
+  letter-spacing:.04em;min-height:1.8em;
+}
+.ncur{
+  display:inline-block;width:6px;height:6px;
+  background:var(--accent);border-radius:50%;
+  margin-left:5px;vertical-align:middle;
+  animation:nb .7s ease-in-out infinite;
+}
+@keyframes nb{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.2;transform:scale(.6);}}
+
+/* ── CHAPTER SPLASH ── */
+#splash{
+  position:fixed;inset:0;
+  background:rgba(2,4,12,.95);
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:400;
+}
+.sp-deco{
+  width:min(300px,70%);height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  margin:.8rem 0;
+}
+.sp-em{font-size:3.5rem;margin-bottom:.4rem;}
+.sp-num{font-size:.65rem;letter-spacing:.5em;color:var(--muted);}
+.sp-ttl{
+  font-family:'Shippori Mincho B1',serif;
+  font-size:clamp(1.3rem,4vw,2.1rem);
+  color:var(--accent2);
+  text-align:center;
+  text-shadow:0 0 30px rgba(74,140,255,.5);
+}
+.sp-loc{font-size:.7rem;color:var(--muted);letter-spacing:.3em;margin-top:.5rem;}
+
+/* ── END ── */
+#end{
+  position:fixed;inset:0;
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:600;text-align:center;padding:2rem;
+}
+#end.bad{background:radial-gradient(ellipse at center,#1a0505 0%,#050202 100%);}
+#end.good{background:radial-gradient(ellipse at center,#050f20 0%,#020508 100%);}
+#end.perfect{background:radial-gradient(ellipse at center,#0a0820 0%,#020208 100%);}
+.e-em{font-size:5rem;margin-bottom:.8rem;}
+.e-tag{font-size:.65rem;letter-spacing:.45em;padding:.3rem 1rem;margin-bottom:.5rem;border-radius:2px;}
+.bad .e-tag{color:var(--danger);border:1px solid var(--danger);}
+.good .e-tag{color:var(--accent);border:1px solid var(--accent);}
+.perfect .e-tag{color:var(--gold);border:1px solid var(--gold);}
+.e-ttl{
+  font-family:'Shippori Mincho B1',serif;
+  font-size:clamp(1.5rem,4vw,2.6rem);
+  margin-bottom:.8rem;
+}
+.bad .e-ttl{color:#ff7060;}
+.good .e-ttl{color:var(--accent2);}
+.perfect .e-ttl{color:var(--gold);text-shadow:0 0 30px rgba(240,192,64,.5);}
+.e-desc{font-size:.88rem;color:#6a7a9a;line-height:2.1;max-width:520px;white-space:pre-line;margin-bottom:2rem;}
+.e-btns{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center;}
+.ebtn{
+  background:none;font-family:'Noto Sans JP',sans-serif;
+  font-size:.85rem;padding:.7rem 2rem;cursor:pointer;
+  letter-spacing:.18em;transition:all .2s;border-radius:3px;
+}
+.ebtn.restart{border:1px solid var(--accent);color:var(--accent);}
+.ebtn.restart:hover{background:var(--accent);color:var(--void);}
+
+/* ── FADE ── */
+#fade{
+  position:fixed;inset:0;background:#000;
+  z-index:700;opacity:0;pointer-events:none;transition:opacity .45s;
+}
+
+/* ── ALERT ── */
+#alert{
+  position:fixed;inset:0;
+  border:5px solid var(--danger);
+  box-shadow:inset 0 0 60px rgba(255,58,58,.25);
+  pointer-events:none;z-index:800;
+  opacity:0;transition:opacity .1s;
+}
+#alert.on{opacity:1;}
+
+/* Stars canvas for title */
+</style>
+</head>
+<body>
+<div id="fade"></div>
+<div id="alert"></div>
+
+<!-- ══ TITLE ══ -->
+<div id="title" onclick="startGame()">
+  <canvas id="starfield"></canvas>
+  <div class="world-line"></div>
+  <div class="t-series">TAMA CHRONICLE SERIES — PART III</div>
+  <div class="t-globe">🌍</div>
+  <div class="t-main">変態世界逃亡記<br>〜たまの世界制覇〜</div>
+  <div class="t-sub">TAMA WORLD FUGITIVE</div>
+  <div class="t-history">前作：たまは成田空港で逮捕されかけたが、辛くも脱出に成功した</div>
+  <div class="t-click">── クリックしてスタート ──</div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game">
+  <div id="hud">
+    <div class="hud-logo">🐱 TAMA WORLD</div>
+    <div class="hud-loc" id="hud-loc">🇯🇵 東京</div>
+    <div class="stat-group">
+      <div class="stt">危険<div class="sbar"><div class="sfill s1" id="b1" style="width:30%"></div></div></div>
+      <div class="stt">信頼<div class="sbar"><div class="sfill s2" id="b2" style="width:40%"></div></div></div>
+      <div class="stt">運<div class="sbar"><div class="sfill s3" id="b3" style="width:55%"></div></div></div>
+      <div class="stt">同志<div class="sbar"><div class="sfill s4" id="b4" style="width:0%"></div></div></div>
+    </div>
+    <div class="hud-chapter" id="hud-ch">序章</div>
+    <button id="snd" onclick="toggleSound()">🔊</button>
+  </div>
+
+  <div id="scene">
+    <div id="bg"></div>
+    <div id="bg-overlay"></div>
+    <div class="sitem" id="si-a" style="top:12%;left:8%"></div>
+    <div class="sitem" id="si-b" style="top:18%;right:10%"></div>
+    <div class="sitem" id="si-c" style="bottom:36%;left:12%"></div>
+    <div id="loc-stamp"></div>
+    <div id="char-wrap"><span id="char-em">😾</span><div id="char-nm">たま</div></div>
+    <div id="npc-panel"></div>
+    <div id="choice-ov"><div id="cbox"><div class="ch-head">── どうする？ ──</div></div></div>
+  </div>
+
+  <div id="tbox-wrap">
+    <div id="tpanel" onclick="nextLine()">
+      <div id="spk-row"><span id="spk-ico">📖</span><span id="spk-nm">ナレーター</span></div>
+      <div id="dial">　</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CHAPTER SPLASH ══ -->
+<div id="splash">
+  <div class="sp-em" id="sp-em">🌍</div>
+  <div class="sp-num" id="sp-num">序 章</div>
+  <div class="sp-deco"></div>
+  <div class="sp-ttl" id="sp-ttl">逃亡、開始</div>
+  <div class="sp-deco"></div>
+  <div class="sp-loc" id="sp-loc">JAPAN</div>
+</div>
+
+<!-- ══ END ══ -->
+<div id="end">
+  <div class="e-em" id="e-em">😾</div>
+  <div class="e-tag" id="e-tag">END</div>
+  <div class="e-ttl" id="e-ttl">タイトル</div>
+  <div class="e-desc" id="e-desc"></div>
+  <div class="e-btns">
+    <button class="ebtn restart" onclick="restartGame()">最初からやり直す</button>
+  </div>
+</div>
+
+<!-- ══ SPLASH ══ -->
+<script>
+// ── STARFIELD ──
+(function(){
+  const cv=document.getElementById('starfield');
+  function resize(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+  resize(); window.addEventListener('resize',resize);
+  const ctx=cv.getContext('2d');
+  const stars=Array.from({length:200},()=>({
+    x:Math.random(),y:Math.random(),
+    s:Math.random()*1.5+.3,
+    sp:Math.random()*.0002+.00005
+  }));
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{
+      s.y+=s.sp;if(s.y>1)s.y=0;
+      ctx.fillStyle=`rgba(160,200,255,${Math.random()*.6+.2})`;
+      ctx.beginPath();
+      ctx.arc(s.x*cv.width,s.y*cv.height,s.s,0,Math.PI*2);
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+<script>
+// ══════════════════════════════════════
+//  STORY
+// ══════════════════════════════════════
+const S={
+
+  // ─── 序章：成田空港脱出 ───
+  prologue:{
+    ch:'序章',chT:'逃亡、開始',chE:'✈️',loc:'🇯🇵 成田空港',locStamp:'NARITA AIRPORT',
+    bg:'linear-gradient(135deg,#080c18 0%,#0a1020 100%)',
+    char:'😰',cnm:'たま（変装中）',
+    items:['✈️','🎭','💦'],
+    npcs:[],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'成田国際空港。逃亡中のたまは、変装を施してゲートをくぐろうとしていた。'},
+      {s:'入国審査員',i:'👮',t:'「……少々お待ちください（無線機に手をあてる）」'},
+      {s:'たま',i:'😰',t:'「（やばい！俺のパスポートの名前……"たまたろう"……バレてる！？）」'},
+      {s:'ナレーター',i:'📖',t:'そのとき——空港のモニターが一斉に切り替わった。画面に映し出されたのは……'},
+      {s:'謎の声（モニター）',i:'📺',t:'「たまさん。聞こえますか。私はあなたの味方です。今すぐゲート７Bへ」'},
+      {s:'たま',i:'😨',t:'「……誰だ？どこの誰が……」'},
+      {s:'ナレーター',i:'📖',t:'選択の時間は５秒だった。'},
+    ],
+    choices:[
+      {t:'謎の声の指示に従いゲート7Bへ向かう',stat:{dan:+10,lck:+25},next:'ch1_airport'},
+      {t:'無視して別ルートで出国を試みる',stat:{dan:+30,lck:+5},next:'ch1_solo_escape'},
+    ]
+  },
+
+  ch1_airport:{
+    ch:'第一章',chT:'謎の協力者',chE:'🤝',loc:'🇯🇵 成田空港 7B',locStamp:'GATE 7-B',
+    bg:'linear-gradient(135deg,#080c18 0%,#050810 100%)',
+    char:'😤',cnm:'たま',
+    items:['🗝️','💼','🤫'],
+    npcs:[{em:'🧑‍💻',nm:'ルカ',role:'天才ハッカー'}],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'ゲート7B。そこには、ノートPCを抱えた若者が待っていた。'},
+      {s:'ルカ',i:'🧑‍💻',t:'「やっと来た。俺はルカ。フリーランスのハッカー兼……まあ、あなたのファンです」'},
+      {s:'たま',i:'😤',t:'「ファン？こんな状況で？」'},
+      {s:'ルカ',i:'🧑‍💻',t:'「あなたの演説、ずっと追ってました。入管システムをちょっと書き換えました。今なら出られます」'},
+      {s:'たま',i:'😯',t:'「……お前、すごいな。なんで俺を助ける」'},
+      {s:'ルカ',i:'🧑‍💻',t:'「この国を変えてくれる人が必要なんです。変態でも——本気の人が」'},
+    ],
+    choices:[
+      {t:'ルカと一緒に韓国・ソウルへ飛ぶ',stat:{tin:+20,ali:+15},next:'ch2_seoul'},
+      {t:'ルカに礼を言い、一人でタイへ向かう',stat:{lck:+10,dan:+15},next:'ch2_bangkok'},
+    ]
+  },
+
+  ch1_solo_escape:{
+    bg:'linear-gradient(135deg,#140810 0%,#0c0408 100%)',
+    char:'🏃',cnm:'たま（全力疾走）',
+    items:['🚨','💨','❗'],
+    npcs:[],
+    lines:[
+      {s:'たま',i:'🏃',t:'「謎の声なんか信用できるか！自力でやってやる！！」'},
+      {s:'ナレーター',i:'📖',t:'たまは荷物を捨て、制限エリアを突破した。警報が鳴り響く。'},
+      {s:'警備員',i:'👮',t:'「止まれ！！止まれぇ！！」'},
+      {s:'たま',i:'🏃',t:'「変態パワー全開——！！」'},
+      {s:'ナレーター',i:'📖',t:'奇跡的に滑走路の整備車に飛び乗り、そのまま機内に潜り込んだ。行き先も分からぬまま——'},
+    ],
+    choices:[
+      {t:'飛行機の行き先に任せる（運に賭ける）',stat:{lck:+30,dan:+20},next:'ch2_paris_random'},
+      {t:'スチュワーデスに「トイレに行きたい」と言い時間を稼ぐ',stat:{tin:+10},next:'ch2_seoul'},
+    ]
+  },
+
+  // ─── 第二章：海外逃亡生活 ───
+  ch2_seoul:{
+    ch:'第二章',chT:'ソウル潜伏',chE:'🇰🇷',loc:'🇰🇷 ソウル',locStamp:'SEOUL, KOREA',
+    bg:'linear-gradient(135deg,#0c1020 0%,#080c18 100%)',
+    char:'🐱',cnm:'たま（韓国にて）',
+    items:['🏙️','🍜','📱'],
+    npcs:[{em:'🧑‍💻',nm:'ルカ',role:'天才ハッカー'},{em:'👩‍🎤',nm:'ジア',role:'韓国YouTuber'}],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'ソウル・弘大。たまはルカの伝手で韓国人YouTuber・ジアのアパートに匿われた。'},
+      {s:'ジア',i:'👩‍🎤',t:'「あなたがウワサの変態総理候補？私のチャンネル、登録者500万人いるよ？」'},
+      {s:'たま',i:'😯',t:'「500万！？」'},
+      {s:'ジア',i:'👩‍🎤',t:'「あなたの話、世界中が知りたがってる。私のカメラの前で——全部話してみない？」'},
+      {s:'ルカ',i:'🧑‍💻',t:'「これは千載一遇のチャンスです、たまさん。世界に発信できる」'},
+    ],
+    choices:[
+      {t:'ジアのチャンネルで世界向けに告白動画を撮る',stat:{tin:+30,ali:+20},next:'ch3_viral'},
+      {t:'もう少し慎重に証拠を集めてから動く',stat:{dan:-10,tin:+10},next:'ch3_evidence'},
+    ]
+  },
+
+  ch2_bangkok:{
+    ch:'第二章',chT:'バンコク潜伏',chE:'🇹🇭',loc:'🇹🇭 バンコク',locStamp:'BANGKOK, THAILAND',
+    bg:'linear-gradient(135deg,#1a100a 0%,#100a04 100%)',
+    char:'😎',cnm:'たま（タイにて）',
+    items:['🛺','🌴','🍛'],
+    npcs:[{em:'👴',nm:'ケンジ',role:'元外交官'}],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'バンコク・カオサン通り。熱帯の夜、たまは路地裏の屋台でカオマンガイを食べていた。'},
+      {s:'たま',i:'😎',t:'「うまい……。でも俺はなぜここにいるんだ……（しみじみ）」'},
+      {s:'謎の老人',i:'👴',t:'「隣、いいですかな」'},
+      {s:'たま',i:'😤',t:'「どうぞ。あなたは……？」'},
+      {s:'ケンジ',i:'👴',t:'「ケンジ。元・外務省の外交官です。あなたが"たま"ですね。噂は聞いています」'},
+      {s:'たま',i:'😯',t:'「なぜ俺を……？」'},
+      {s:'ケンジ',i:'👴',t:'「外交官時代に、クロサワとその一派の裏取引を目撃した。証拠も持っている」'},
+    ],
+    choices:[
+      {t:'ケンジと組んで国際的な告発を仕掛ける',stat:{tin:+35,ali:+25},next:'ch3_diplomat'},
+      {t:'ケンジを疑って話を聞き流す',stat:{lck:-20},next:'ch3_alone_fail'},
+    ]
+  },
+
+  ch2_paris_random:{
+    ch:'第二章',chT:'パリ迷子',chE:'🇫🇷',loc:'🇫🇷 パリ',locStamp:'PARIS, FRANCE',
+    bg:'linear-gradient(135deg,#14101a 0%,#0c0810 100%)',
+    char:'😵',cnm:'たま（迷子）',
+    items:['🗼','🥐','😵'],
+    npcs:[{em:'👩‍🎨',nm:'マリー',role:'日本語学科の学生'}],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'シャルル・ド・ゴール空港。たまが降り立ったのは、まさかのパリだった。'},
+      {s:'たま',i:'😵',t:'「……パリ？フランス語わかんないぞ！？」'},
+      {s:'若い女性',i:'👩‍🎨',t:'「あの……日本人ですか？私、日本語の勉強してて……」'},
+      {s:'たま',i:'😵',t:'「！！ありがとう神様！！日本語話せる人が！！」'},
+      {s:'マリー',i:'👩‍🎨',t:'「マリーといいます。あなた、ニュースで見た……もしかして、たまさん？」'},
+      {s:'たま',i:'😅',t:'「そ、それは……（汗）」'},
+      {s:'マリー',i:'👩‍🎨',t:'「私、あなたの演説の動画、大学で見ました。感動しました。助けてあげます！」'},
+    ],
+    choices:[
+      {t:'マリーを信じてパリに拠点を作る',stat:{tin:+25,ali:+20},next:'ch3_viral'},
+      {t:'すぐにソウルへ移動してルカを探す',stat:{lck:+15},next:'ch2_seoul'},
+    ]
+  },
+
+  // ─── 第三章：世界が動く ───
+  ch3_viral:{
+    ch:'第三章',chT:'世界拡散',chE:'📡',loc:'🌍 全世界',locStamp:'WORLDWIDE',
+    bg:'linear-gradient(135deg,#050c1a 0%,#030810 100%)',
+    char:'📱',cnm:'たま（配信中）',
+    items:['📡','🌍','💥'],
+    npcs:[{em:'🧑‍💻',nm:'ルカ',role:'ハッカー'},{em:'👩‍🎤',nm:'ジア',role:'YouTuber'}],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'動画は公開から12時間で再生回数8000万回を突破した。'},
+      {s:'ジア',i:'👩‍🎤',t:'「#FreeThePremier がTwitter世界トレンド1位！たまさん、もう止まりません！」'},
+      {s:'ルカ',i:'🧑‍💻',t:'「日本国内でも拡散中。クロサワの支持者から内部告発が相次いでいます」'},
+      {s:'たま',i:'😤',t:'「……俺一人の戦いが、世界を動かした。変態の力、舐めるなよ」'},
+      {s:'ナレーター',i:'📖',t:'そのとき——日本政府から一本の連絡が入った。'},
+      {s:'外務省職員（電話）',i:'📞',t:'「たま氏……帰国の意思はありますか。一部の議員が再審議を求めています」'},
+    ],
+    choices:[
+      {t:'今すぐ帰国して正面突破する',stat:{dan:+20,lck:+30},next:'ch4_return'},
+      {t:'もう一押し——国連に直訴状を送る',stat:{tin:+30,ali:+30},next:'ch4_un'},
+    ]
+  },
+
+  ch3_evidence:{
+    ch:'第三章',chT:'証拠集め',chE:'🔍',loc:'🇰🇷 ソウル',locStamp:'SEOUL — SECRET BASE',
+    bg:'linear-gradient(135deg,#0a0c14 0%,#060810 100%)',
+    char:'🔍',cnm:'たま（調査中）',
+    items:['💻','📁','🔍'],
+    npcs:[{em:'🧑‍💻',nm:'ルカ',role:'ハッカー'}],
+    lines:[
+      {s:'ルカ',i:'🧑‍💻',t:'「クロサワ陣営のサーバーに侵入しました。メールのログが——これは」'},
+      {s:'たま',i:'😤',t:'「どうした？」'},
+      {s:'ルカ',i:'🧑‍💻',t:'「たまさんの政治資金スキャンダル……全部、クロサワの側近が仕掛けたことが書いてある」'},
+      {s:'たま',i:'😤',t:'「やっぱりそうか！！証拠を確保しろ！完全な形で！！」'},
+      {s:'ルカ',i:'🧑‍💻',t:'「でも……このデータを使うには、国内の協力者が必要です。一人心当たりはいますか」'},
+      {s:'たま',i:'😤',t:'「……ミカ。あいつならやってくれる」'},
+    ],
+    choices:[
+      {t:'ミカに連絡して国内で動いてもらう',stat:{tin:+30,ali:+25},next:'ch4_return'},
+      {t:'全てのデータを一気に世界メディアへリーク',stat:{dan:+15,lck:+25},next:'ch3_viral'},
+    ]
+  },
+
+  ch3_diplomat:{
+    ch:'第三章',chT:'国際告発',chE:'⚖️',loc:'🌏 国際舞台',locStamp:'INTERNATIONAL COURT',
+    bg:'linear-gradient(135deg,#0a1010 0%,#060c0c 100%)',
+    char:'⚖️',cnm:'たまとケンジ',
+    items:['📋','🌏','⚖️'],
+    npcs:[{em:'👴',nm:'ケンジ',role:'元外交官'},{em:'👩‍⚖️',nm:'アナ',role:'国際弁護士'}],
+    lines:[
+      {s:'ケンジ',i:'👴',t:'「私の伝手で、国際弁護士のアナを呼んだ。彼女はクロサワの海外マネーロンダリングを追っている」'},
+      {s:'アナ',i:'👩‍⚖️',t:'「初めまして、たまさん。私はアナ・ロドリゲス。この案件、国際刑事裁判所まで持っていける可能性があります」'},
+      {s:'たま',i:'😯',t:'「ICC！？そんなとこまで……」'},
+      {s:'アナ',i:'👩‍⚖️',t:'「クロサワの資金は複数の国を経由しています。これは日本一国の問題じゃない」'},
+      {s:'たま',i:'😤',t:'「……わかった。俺は証言する。この変態、全部しゃべるぞ！！」'},
+    ],
+    choices:[
+      {t:'ICCへの証言を決意し帰国の準備をする',stat:{tin:+35,ali:+35},next:'ch4_un'},
+      {t:'まず日本国内の世論を動かすため動画を公開する',stat:{lck:+25},next:'ch3_viral'},
+    ]
+  },
+
+  ch3_alone_fail:{
+    bg:'linear-gradient(135deg,#140808 0%,#0c0404 100%)',
+    char:'😔',cnm:'たま（孤立）',
+    items:['🍛','😔','📰'],
+    npcs:[],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'ケンジを信用しなかったたまは一人バンコクに留まり続けた。'},
+      {s:'ナレーター',i:'📖',t:'資金は尽き、日本からの追跡も激しくなっていく。'},
+      {s:'たま',i:'😔',t:'「……俺は何をしているんだ。信頼できる人間を、また一人逃した」'},
+    ],
+    choices:[
+      {t:'バンコクでケンジを探し直す',stat:{tin:+20},next:'ch2_bangkok'},
+      {t:'このまま観念して帰国する',next:'bad_surrender'},
+    ]
+  },
+
+  // ─── 第四章：帰還 ───
+  ch4_return:{
+    ch:'第四章',chT:'帰国、決戦前夜',chE:'🇯🇵',loc:'🇯🇵 東京',locStamp:'TOKYO — BACK HOME',
+    bg:'linear-gradient(135deg,#0a0c18 0%,#080a14 100%)',
+    char:'😤',cnm:'たま（帰国）',
+    items:['🌆','🎌','⚡'],
+    npcs:[{em:'👩',nm:'ミカ',role:'元選挙参謀'},{em:'🧑‍💻',nm:'ルカ',role:'ハッカー'}],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'帰国したたまを待ち受けていたのは、ミカとルカ——そして、予想外の人物だった。'},
+      {s:'ミカ',i:'👩',t:'「たまさん！！無事で……本当によかった」'},
+      {s:'たま',i:'😤',t:'「ミカ……お前も苦労をかけた」'},
+      {s:'サブロウ（元囚人仲間）',i:'🤫',t:'「よう。俺も来たぜ、たまの旦那」'},
+      {s:'たま',i:'😯',t:'「サブロウ！？お前、まだ捕まってなかったのか！？」'},
+      {s:'サブロウ',i:'🤫',t:'「そんな俺がクロサワの事務所に忍び込んで、とっておきのブツを回収してきたんですよ」'},
+      {s:'ミカ',i:'👩',t:'「これで——全て終わりにできます」'},
+    ],
+    choices:[
+      {t:'全員で記者会見に乗り込む',stat:{dan:+20,lck:+30},next:'final_press'},
+      {t:'サブロウの証拠で黒幕を直接追い詰める',stat:{dan:+30,ali:+20},next:'final_confront'},
+    ]
+  },
+
+  ch4_un:{
+    ch:'第四章',chT:'国連スピーチ',chE:'🇺🇳',loc:'🇺🇳 ニューヨーク',locStamp:'UNITED NATIONS — NY',
+    bg:'linear-gradient(135deg,#081018 0%,#041020 100%)',
+    char:'🎤',cnm:'たま（演説中）',
+    items:['🇺🇳','🎤','🌍'],
+    npcs:[{em:'👴',nm:'ケンジ',role:'元外交官'},{em:'👩‍⚖️',nm:'アナ',role:'国際弁護士'}],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'国連総会の補助議場。たまは世界193カ国の代表を前に立った。'},
+      {s:'たま',i:'🎤',t:'「私は、日本の変態です」'},
+      {s:'会場',i:'🌍',t:'（どよめき）'},
+      {s:'たま',i:'🎤',t:'「でも私は、この世界をもっとよくしたい変態です。クロサワ一派の腐敗は、日本だけの問題ではない」'},
+      {s:'アナ',i:'👩‍⚖️',t:'「証拠書類を全加盟国に配布しました。この汚職は18カ国に及びます」'},
+      {s:'ナレーター',i:'📖',t:'拍手が起こった。そして——日本政府は震えた。'},
+    ],
+    choices:[
+      {t:'このまま帰国して最後の決戦へ',stat:{tin:+40,ali:+30},next:'final_press'},
+      {t:'国連の支持を得てから動く（万全を期す）',stat:{tin:+50},next:'perfect_end'},
+    ]
+  },
+
+  // ─── FINAL ───
+  final_press:{
+    ch:'最終章',chT:'真実の記者会見',chE:'🎤',loc:'🇯🇵 東京・日本記者クラブ',locStamp:'PRESS CLUB — TOKYO',
+    bg:'linear-gradient(135deg,#080c18 0%,#060a14 100%)',
+    char:'🎤',cnm:'たま（会見）',
+    items:['📺','🎤','🗞️'],
+    npcs:[{em:'👩',nm:'ミカ',role:'参謀'},{em:'🤫',nm:'サブロウ',role:'元囚人'}],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'緊急記者会見。世界中のカメラが、たまに向けられていた。'},
+      {s:'たま',i:'🎤',t:'「皆さん。私はたまです。変態です。でも——嘘はつきません」'},
+      {s:'記者',i:'📰',t:'「クロサワ元大臣の関与について証拠はありますか」'},
+      {s:'たま',i:'🎤',t:'「あります。全部——ここにあります」'},
+      {s:'ナレーター',i:'📖',t:'サブロウが手渡したUSBメモリには、数百件の証拠データが入っていた。'},
+      {s:'ミカ',i:'👩',t:'「（小声で）たまさん……あとは、最後の一言だけです」'},
+    ],
+    choices:[
+      {t:'「この国を変えるために——戻ってきました」と宣言',stat:{lck:+50},next:'good_end'},
+      {t:'感極まって泣き崩れる（でも心は決まってる）',stat:{tin:+40},next:'good_end'},
+    ]
+  },
+
+  final_confront:{
+    ch:'最終章',chT:'黒幕との対決',chE:'⚡',loc:'🇯🇵 クロサワ邸',locStamp:'KUROSAWA MANOR',
+    bg:'linear-gradient(135deg,#140808 0%,#0c0404 100%)',
+    char:'😤',cnm:'たま（対決）',
+    items:['⚡','🔥','⚖️'],
+    npcs:[{em:'😈',nm:'クロサワ',role:'黒幕'},{em:'🤫',nm:'サブロウ',role:'元囚人'}],
+    lines:[
+      {s:'ナレーター',i:'📖',t:'深夜。クロサワの豪邸に、たまとサブロウは忍び込んだ。'},
+      {s:'クロサワ',i:'😈',t:'「……来ると思っていたよ。変態くん」'},
+      {s:'たま',i:'😤',t:'「全部終わりだ、クロサワ。証拠は世界中に拡散された。もう逃げられない」'},
+      {s:'クロサワ',i:'😈',t:'「フッ……本当にそう思うか？」'},
+      {s:'サブロウ',i:'🤫',t:'「旦那！！外に警察が来てます——でもそれは俺たちの味方です！！」'},
+      {s:'クロサワ',i:'😈',t:'「なっ……！」'},
+    ],
+    choices:[
+      {t:'クロサワに最後の言葉を叩きつける',stat:{lck:+40},next:'good_end'},
+      {t:'全てをクロサワに喋らせて録音する',stat:{tin:+50},next:'perfect_end'},
+    ]
+  },
+
+  // ─── ENDINGS ───
+  good_end:{
+    type:'end',ec:'good',
+    em:'🎊',tag:'GOOD END',
+    ttl:'変態総理、世界へ',
+    desc:`冤罪が晴れた。
+
+クロサワ一派は全員逮捕。
+
+国際社会の支持を背に帰国したたまは、
+異例の速さで再選挙に出馬。
+
+「変態でも——本気の人間は強い」
+
+開票結果が出た夜、
+ルカ、ジア、ケンジ、ミカ、サブロウが
+たまの事務所に集まっていた。
+
+「ありがとう、みんな」
+
+第○○代内閣総理大臣・たま——
+就任。
+
+　　＊　＊　＊
+　　GOOD END`
+  },
+
+  perfect_end:{
+    type:'end',ec:'perfect',
+    em:'🌟',tag:'PERFECT END',
+    ttl:'変態、世界を変える',
+    desc:`国連演説は歴史に残るスピーチとなった。
+
+クロサワの汚職は国際法廷で裁かれ、
+18カ国にわたる腐敗構造が解体された。
+
+たまは日本に帰国し、
+圧倒的な世論の支持を受けて総選挙へ。
+
+投票率：史上最高の84%。
+たまの得票率：63%。
+
+総理大臣就任スピーチ——
+
+「私は変態です。でも今日から、
+この国の——そして世界の——
+総理大臣です」
+
+ルカ：官邸ITアドバイザーに就任。
+ジア：日韓親善大使に就任。
+ケンジ：外務大臣に就任。
+ミカ：官房長官に就任。
+サブロウ：……なぜか警視庁顧問に。
+
+　　＊　＊　＊
+　　✨ PERFECT END ✨`
+  },
+
+  bad_surrender:{
+    type:'end',ec:'bad',
+    em:'😔',tag:'BAD END',
+    ttl:'静かなる撤退',
+    desc:`バンコクの屋台で、たまは決断した。
+
+「……帰ろう」
+
+自ら警察に出頭したたまは、
+追加刑期を受けることになった。
+
+でも——独房の中で
+たまは一冊のノートを書き始めた。
+
+タイトル：「変態の政治学」
+
+数年後、そのノートは書籍化され
+ベストセラーになった。
+
+帯の一言：
+「刑務所の中から、日本を変えよう」
+
+……たまの戦いは、まだ終わっていない。`
+  },
+};
+
+// ══════════════════════════════════════
+//  ENGINE
+// ══════════════════════════════════════
+let sc,li,typing,timer,choiceOpen;
+let st={dan:30,tin:40,lck:55,ali:0};
+let soundOn=true, actx;
+
+function ac(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx;}
+function beep(f=440,d=.07,v=.08,tp='sine'){
+  if(!soundOn)return;
+  try{const c=ac(),o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.frequency.value=f;o.type=tp;
+    g.gain.setValueAtTime(v,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+    o.start();o.stop(c.currentTime+d);}catch(e){}
+}
+function pt(){beep(180+Math.random()*120,.025,.025,'triangle');}
+function pclk(){beep(520,.05,.07);}
+function pch(){beep(660,.09,.1);}
+function pbad(){beep(140,.5,.1,'sawtooth');}
+function pgood(){[523,659,784,880,1046].forEach((f,i)=>setTimeout(()=>beep(f,.25,.12),i*130));}
+function pperf(){[523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>beep(f,.3,.13),i*100));}
+function toggleSound(){soundOn=!soundOn;document.getElementById('snd').textContent=soundOn?'🔊':'🔇';}
+
+// BGM — spacey arpeggio
+function startBGM(){
+  if(!soundOn)return;
+  const c=ac();
+  const seq=[220,261,329,392,440,392,329,261];
+  let t=c.currentTime+.1;
+  function loop(){
+    if(!soundOn)return;
+    seq.forEach((f,i)=>{
+      const o=c.createOscillator(),g=c.createGain();
+      o.connect(g);g.connect(c.destination);
+      o.frequency.value=f;o.type='sine';
+      const bt=t+i*.3;
+      g.gain.setValueAtTime(.03,bt);
+      g.gain.exponentialRampToValueAtTime(.001,bt+.25);
+      o.start(bt);o.stop(bt+.3);
+    });
+    t+=seq.length*.3;
+    setTimeout(loop,(seq.length*.3-.5)*1000);
+  }
+  loop();
+}
+
+function updBars(){
+  document.getElementById('b1').style.width=st.dan+'%';
+  document.getElementById('b2').style.width=st.tin+'%';
+  document.getElementById('b3').style.width=st.lck+'%';
+  document.getElementById('b4').style.width=st.ali+'%';
+}
+
+function applyStats(obj){
+  if(!obj)return;
+  const map={dan:'dan',stat:{},tin:'tin',lck:'lck',ali:'ali'};
+  for(const[k,v]of Object.entries(obj)){
+    if(st[k]!==undefined) st[k]=Math.min(100,Math.max(0,st[k]+v));
+  }
+  updBars();
+  if(st.dan>70){
+    const a=document.getElementById('alert');
+    a.classList.add('on'); beep(880,.12,.15,'square');
+    setTimeout(()=>a.classList.remove('on'),300);
+    setTimeout(()=>{a.classList.add('on');setTimeout(()=>a.classList.remove('on'),300);},600);
+  }
+}
+
+function loadScene(key){
+  fade(()=>{
+    sc=S[key]; li=0; choiceOpen=false;
+    if(sc.type==='end'){showEnd(sc);return;}
+
+    document.getElementById('bg').style.background=sc.bg||'#05080f';
+    document.getElementById('char-em').textContent=sc.char||'😾';
+    document.getElementById('char-nm').textContent=sc.cnm||'たま';
+    document.getElementById('loc-stamp').textContent=sc.locStamp||'';
+
+    // Location HUD
+    if(sc.loc) document.getElementById('hud-loc').textContent=sc.loc;
+    if(sc.ch) document.getElementById('hud-ch').textContent=sc.ch;
+
+    // Items
+    ['si-a','si-b','si-c'].forEach((id,idx)=>{
+      document.getElementById(id).textContent=(sc.items&&sc.items[idx])||'';
+    });
+
+    // NPCs
+    const panel=document.getElementById('npc-panel');
+    panel.innerHTML='';
+    (sc.npcs||[]).forEach(n=>{
+      const d=document.createElement('div');
+      d.className='npc-card';
+      d.innerHTML=`<span class="npc-em">${n.em}</span><div class="npc-name">${n.nm}</div><div class="npc-role">${n.role}</div>`;
+      panel.appendChild(d);
+      setTimeout(()=>d.classList.add('show'),200);
+    });
+
+    document.getElementById('choice-ov').style.display='none';
+
+    if(sc.ch&&sc.chT){
+      showSplash(sc.ch,sc.chT,sc.chE||'📖',sc.loc||'',()=>showLine());
+    } else {
+      showLine();
+    }
+  });
+}
+
+function showLine(){
+  if(!sc.lines||li>=sc.lines.length){
+    if(sc.next){loadScene(sc.next);return;}
+    showChoices();return;
+  }
+  const ln=sc.lines[li];
+  document.getElementById('spk-ico').textContent=ln.i||'📖';
+  document.getElementById('spk-nm').textContent=ln.s||'ナレーター';
+  const dl=document.getElementById('dial');
+  dl.innerHTML='';typing=true;
+  let i=0;const txt=ln.t;
+  function tick(){
+    if(i<txt.length){dl.textContent=txt.slice(0,i+1);if(i%2===0)pt();i++;timer=setTimeout(tick,36);}
+    else{typing=false;dl.innerHTML=txt+'<span class="ncur"></span>';}
+  }
+  tick();
+}
+
+function nextLine(){
+  if(choiceOpen)return;
+  if(typing){
+    clearTimeout(timer);typing=false;
+    const ln=sc.lines[li];
+    document.getElementById('dial').innerHTML=ln.t+'<span class="ncur"></span>';
+    return;
+  }
+  pclk();li++;showLine();
+}
+
+function showChoices(){
+  if(!sc.choices)return;
+  choiceOpen=true;
+  const ov=document.getElementById('choice-ov');
+  const box=document.getElementById('cbox');
+  box.innerHTML='<div class="ch-head">── どうする？ ──</div>';
+  ov.style.display='flex';
+  sc.choices.forEach((ch,i)=>{
+    const b=document.createElement('button');
+    b.className='cbtn';
+    b.innerHTML=`<span class="cn">${i+1}.</span>${ch.t}`;
+    b.onclick=()=>{
+      pch();ov.style.display='none';choiceOpen=false;
+      if(ch.stat)applyStats(ch.stat);
+      loadScene(ch.next);
+    };
+    box.appendChild(b);
+  });
+}
+
+function showSplash(num,ttl,em,loc,cb){
+  const sp=document.getElementById('splash');
+  document.getElementById('sp-em').textContent=em;
+  document.getElementById('sp-num').textContent=num.split('').join(' ');
+  document.getElementById('sp-ttl').textContent=ttl;
+  document.getElementById('sp-loc').textContent=loc;
+  sp.style.display='flex';
+  beep(440,.35,.1);
+  setTimeout(()=>{sp.style.display='none';if(cb)cb();},2300);
+}
+
+function showEnd(s){
+  const el=document.getElementById('end');
+  el.style.display='flex';
+  el.className=s.ec;
+  document.getElementById('e-em').textContent=s.em;
+  document.getElementById('e-tag').textContent=s.tag;
+  document.getElementById('e-ttl').textContent=s.ttl;
+  document.getElementById('e-desc').textContent=s.desc;
+  if(s.ec==='perfect')pperf();
+  else if(s.ec==='good')pgood();
+  else pbad();
+  if(s.ec==='perfect')addStars();
+}
+
+function addStars(){
+  const el=document.getElementById('end');
+  ['🌟','✨','⭐','🎊','🎉','🌍'].forEach(em=>{
+    for(let i=0;i<4;i++){
+      const d=document.createElement('div');
+      d.style.cssText=`position:absolute;font-size:1.8rem;left:${Math.random()*100}%;animation:pfloat ${2+Math.random()*2}s ease-out ${Math.random()*2}s infinite;pointer-events:none;`;
+      d.textContent=em;
+      el.appendChild(d);
+    }
+  });
+  const st=document.createElement('style');
+  st.textContent='@keyframes pfloat{0%{transform:translateY(100vh) rotate(0deg);opacity:1;}100%{transform:translateY(-100px) rotate(360deg);opacity:0;}}';
+  document.head.appendChild(st);
+}
+
+function restartGame(){
+  document.getElementById('end').style.display='none';
+  document.getElementById('end').querySelectorAll('div[style]').forEach(e=>e.remove());
+  st={dan:30,tin:40,lck:55,ali:0};
+  updBars();
+  loadScene('prologue');
+}
+
+function startGame(){
+  document.getElementById('title').style.display='none';
+  document.getElementById('game').style.display='flex';
+  if(soundOn)startBGM();
+  loadScene('prologue');
+}
+
+function fade(cb){
+  const f=document.getElementById('fade');
+  f.style.opacity='1';
+  setTimeout(()=>{cb();setTimeout(()=>f.style.opacity='0',80);},440);
+}
+
+document.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')nextLine();});
+document.getElementById('tpanel').addEventListener('click',nextLine);
+</script>
+</body>
+</html>
